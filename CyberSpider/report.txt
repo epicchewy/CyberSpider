@@ -1,0 +1,75 @@
+Luke Chui
+Carey CS 32
+Project 4 Report
+
+1. I don't know if any of my classes have bugs in them. I believe they are all correct.
+
+2. 
+DiskMultiMap:
+bool createNew(const std::string& filename,	unsigned int numBuckets);
+
+My createNew function creates a new hashtable with a certain number of buckets. It creates the table based on the size of the Header, and HashTableBucket, and writes in however many buckets are needed. 
+
+bool openExisting(const std::string& filename);
+
+My openExisting function returns true if the binary file can be opened successfully and false otherwise.
+
+void close();
+My close() function closes the binary file that is being read from/written to.
+
+bool insert(const std::string& key,	const std::string& value, const std::string& context);
+
+My insert() function first returns false is the strings inputted are too large for the bucket. It creates a tuple to store the string values. It then creates a new node to add to the bucket and also tracks the position of the last node. It finds teh bucket to input the node to and moves the header there too. Then, it sets the nodes values to the parameters. Because we have to keep track of the deleted nodes, we have to shift the position of the last node according to the size of the node. It will keep track of the deleted position and shift it in the header accordignly. The function next moves the offest of the node so the node will write properly. Finally, it updates the bucket, header, and node and returns true of successfully doing so.
+
+Iterator search(const std::string& key);
+
+The search() first reads the parameter key and reads the binary file to that index in the file. It then returns an Iterator that begins at that offset.
+
+int erase(const std::string& key, const std::string& value, const std::string& context);
+
+The erase() function first finds the appropriate bucket where the node you want to delete is. Then, until address reaches the end of the bucket, it reads a node parameters and checks if it matches the parameters in the function. If it is a match, then it will increment the deletedBuckets, and move the deleted position to the current address and move the previous node to the previous deleted address. The function returns the number of deleted buckets in the end.
+
+Iterator subclass:
+Iterator(BinaryFile* bf, std::string str, int address);
+
+This is one of the constructors for the Iterator. It takes in a BinaryFile, a string, and an address. The address is the offset where the Iterator should start reading from.
+
+Iterator& operator++();
+
+This overload operator essentially increments an iterator, which in this case, moves the address to the next node. It returns a pointer to the next node.
+
+MultiMapTuple operator*();
+
+This function returns an empty tuple if the binary file rails to read node at the intended address and returns a tuple with the nodes values if the node exists in the file.
+
+IntelWeb
+bool createNew(const std::string& filePrefix, unsigned int maxDataItems);
+
+It creates a two new DiskMultiMaps of a load factor of .75 to read/write from. It creates two because with two, you are able to follow the big-O requirements. When one hash table is hashed based on the key and the other is hased based on the value, you can significantly reduce your time complexity.
+
+bool openExisting(const std::string& filePrefix);
+
+This function has similar behavior as the createNew() function, but instead of creating a new DiskMultiMap, it checks if it can successfully open both diskmultimaps. It returns true if both are successfully opened and false if at least one doesn't open properly.
+
+void close();
+
+This function closes both DiskMultiMaps.
+
+bool ingest(const std::string& telemetryFile);
+
+The ingest() function opens the telemetryFile and returns false if it fails to do so. If it opens the file successfully, it will read line by line and extract the context, key, and value strings and insert them both into the according DiskMultiMap.
+
+unsigned int crawl(const std::vector<std::string>& indicators, unsigned int minPrevalenceToBeGood, std::vector<std::string>& badEntitiesFound, std::vector<InteractionTuple>& badInteractions
+                               );
+
+The crawl() function implemented a breadth first search to find all the malicious entities. It first pushes in all the malicious items into the qIndicators queue. It them goes through each item in the queue an checks if the entity can be found in either cache/diskmultimap. For the cache, it will go through the cache until it is empty, track the malicious items, and push them into the queue and set of malicious items. When it goes through the DiskMultiMap, an InteractionTuple is used to load the newTuple into the tracker and the queue. This same behavior is applied to both of the input and output DiskMultiMaps, which is done to ensure the time complexity requirement is met. It next will assign all the values from the tracked maliciousItems into the badEntitiesFound, and it will assign all the values of interactions found into the badInteractions vector.  Finally, the function returns the number of malicious items were found.
+
+bool purge(const std::string& entity);
+
+The purge() function starts off by removing the entity from both caches. It creates lists to store the input items and to sotre the output items. It then goes through each file and pushes in all the tuples in the DiskMultiMap. It then erases all of the items from the DiskMultiMaps and returns true if the items were successfully erased.
+
+unsigned int getBadCount(const string& key, int min);
+
+The function getBadCount() essentially is the function to find prevalence and performs the caching. It finds all the items in the data structure that holds all the bad items. It then iterates through each of the DiskMultiMaps and adds an InteractionTuple into the cache regardless of whether it is malicious or not. It also keeps track of the number of bad items are in each bucket. It returns that number if it exceeds the minimum or when the iterator reaches the end.
+
+3. I believe that all my functions meet the desired big-O requirements.
